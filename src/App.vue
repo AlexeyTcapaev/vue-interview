@@ -9,13 +9,8 @@
 </template>
 
 <script>
-const Slider = () =>
-    import('./components/Slider.vue');
 export default {
-  name: 'App',
-  components: {
-    Slider
-  },
- data: () => ({})
-}
+  name: "App",
+  data: () => ({})
+};
 </script>

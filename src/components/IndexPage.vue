@@ -1,15 +1,17 @@
 <template>
-<v-layout>
-    <v-flex>
-        <Slider></Slider>
-    </v-flex>
-</v-layout>
+<v-container>
+    <v-layout>
+        <v-flex align-center>
+            <Fraction></Fraction>
+        </v-flex>
+    </v-layout>
+</v-container>
 </template>
 <script>
-const Slider= () => import("./Slider.vue");
+const Fraction= () => import("./Fraction.vue");
 export default {
     components:{
-        Slider
+        Fraction
     }
 }
 </script>
