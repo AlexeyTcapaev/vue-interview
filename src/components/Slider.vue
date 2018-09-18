@@ -1,8 +1,14 @@
 <template>
-<div class='slider js-slider'>
-	<div class="slider__body" v-bind:style='{left: sliderOffsetLeft + "px"}'>
-		<slide class="slider__slide js-slide" v-for='(slide,index) in sliderList' :key="index" :slide="slide"></slide>
-	</div>
+<div>
+    <div class='slider js-slider'>
+        <div class="slider__body" @mousedown="startDrag" @mousemove="doDrag" @mouseup="stopDrag">
+            <slide class="slider__slide js-slide" :slide="sliderList[sliderPrev]" v-bind:style='{left: sliderOffsetLeft-sliderOffsetStep + "px"}'></slide>
+            <slide class="slider__slide js-slide" :slide="sliderList[sliderActive]" v-bind:style='{left: sliderOffsetLeft-sliderOffsetStep + "px"}'></slide>
+            <slide class="slider__slide js-slide" :slide="sliderList[sliderNext]" v-bind:style='{left: sliderOffsetLeft-sliderOffsetStep + "px"}'></slide>
+        </div>
+    </div>
+    <v-btn @click="prevSlide"><</v-btn>
+    <v-btn @click="nextSlide">></v-btn>
 </div>
 </template>
 
@@ -16,44 +22,75 @@ export default {
   data: () => ({
     sliderAllCount: 0,
     // Номер активного слайда
-    sliderActive: 1,
-    // Отступ тела со слайдами в контейнере
-    sliderOffsetLeft: 0,
-    // Шаг одного слайда = его длина
+    sliderActive: 0,
     sliderOffsetStep: 0,
+    // Отступ тела со слайдами в контейнере
     // Список изображений
     sliderList: [
-      { img: "https://dummyimage.com/wsvga" },
-      { img: "https://dummyimage.com/wsvga" },
-      { img: "https://dummyimage.com/wsvga" },
-      { img: "https://dummyimage.com/wsvga" }
-    ]
+      { img: "https://dummyimage.com/wsvga1" },
+      { img: "https://dummyimage.com/wsvga2" },
+      { img: "https://dummyimage.com/wsvga3" },
+      { img: "https://dummyimage.com/wsvga4" }
+    ],
+    dragging: false,
+    x: "no",
+    Xstart: "",
+    sliderOffsetLeft: 0
   }),
   props: {
     msg: String
   },
   methods: {
-    initSlider() {
-      // Получаем элементы сладера и его слайдов
-      let sliderBody = this.$el.querySelector(".js-slider");
-      let sliderSlidies = sliderBody.querySelectorAll(".js-slide");
-      // Записываем длину одного слайда для перелистывания
-      this.sliderOffsetStep = sliderBody.clientWidth;
-      // Общее количество слайдов для стопов
-      this.sliderAllCount = sliderSlidies.length;
+    startDrag(event) {
+      this.dragging = true;
+      this.x = 0;
+      this.Xstart = event.clientX;
     },
-    openSlide(id) {
-      if (id > 0 && id <= this.sliderAllCount) {
-        this.sliderActive = id;
-        // Сдвигаем элемент со слайдами
-        this.sliderOffsetLeft = -(
-          this.sliderActive * this.sliderOffsetStep -
-          this.sliderOffsetStep
-        );
+    stopDrag() {
+      this.dragging = false;
+      this.x = 0;
+      this.Xstart = 0;
+    },
+    doDrag(event) {
+      if (this.dragging) {
+        this.x = event.clientX;
+        this.sliderOffsetLeft = this.x - this.Xstart;
       }
+    },
+    prevSlide() {
+      if (this.sliderActive - 1 > 0) this.sliderActive--;
+      else this.sliderActive = this.sliderList.length - 1;
+    },
+    nextSlide() {
+      if (this.sliderActive + 1 < this.sliderList.length) this.sliderActive++;
+      else this.sliderActive = 0;
+    },
+    initSlider() {
+      // Записываем длину одного слайда для перелистывания
+      this.sliderOffsetStep = document.documentElement.clientWidth;
+      // Общее количество слайдов для стопов
+      this.sliderAllCount = this.sliderList.length;
     }
   },
-  mounted() {}
+  mounted() {
+    this.initSlider();
+    // Перенастройка слайдера при ресайзе окна
+    window.addEventListener("resize", () => {
+      this.initSlider();
+    });
+  },
+  computed: {
+    sliderPrev() {
+      return this.sliderActive - 1 > 0
+        ? this.sliderActive - 1
+        : this.sliderList.length - 1;
+    },
+    sliderNext() {
+      return this.sliderActive + 1 < this.sliderList.length
+        ? this.sliderActive + 1
+        : 0;
+    }
+  }
 };
 </script>
 
@@ -74,3 +111,31 @@ a {
   color: #42b983;
 }
 </style>
+<style>
+.slider__slide {
+  cursor: pointer;
+}
+.slider {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+.slider__body {
+  min-width: auto;
+  height: 400px;
+  display: flex;
+  position: relative;
+  align-items: stretch;
+  transition: all 0.5s ease;
+}
+.slider__slide {
+  position: relative;
+  min-width: 100%;
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+  flex: 1 100%;
+}
+</style>
+

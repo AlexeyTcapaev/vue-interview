@@ -9,7 +9,7 @@ export default {
     slide: Object
   },
   mounted(){
-    
+
   }
 };
 </script>
